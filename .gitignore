@@ -1,0 +1,7 @@
+# Verification screenshots and temporary test images
+*.png
+*.log
+
+# OS metadata
+Thumbs.db
+.DS_Store

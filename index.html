@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LILIUM ORIENTALIS // Project: Moonlight</title>
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css?v=2.5">
+</head>
+<body>
+  <!-- Celestial Autoplay Unlock Banner (Guarantees instant Happy Birthday music start across all browsers) -->
+  <div id="audio-unlock-overlay" class="audio-unlock-overlay">
+    <div class="audio-unlock-box">
+      <div class="unlock-shimmer"></div>
+      <div class="unlock-icon">🎂</div>
+      <div class="unlock-title">LILIUM ORIENTALIS // PROJECT: MOONLIGHT</div>
+      <div class="unlock-dedication">Dedicated to Nusrat Jahan Sadia — 03 November</div>
+      <button id="audio-unlock-btn" class="audio-unlock-btn">
+        <span class="btn-music-icon">🎵</span>
+        <span>ENTER WITH BIRTHDAY MUSIC</span>
+        <span class="btn-sparkle">✦</span>
+      </button>
+      <div class="unlock-hint">Tap anywhere on the screen to start music & bloom</div>
+    </div>
+  </div>
+
+  <!-- Music Toggle Button (Can be paused/resumed anytime) -->
+  <button id="audio-toggle" class="hud-audio-btn active" aria-label="Toggle Music" title="Pause / Resume Music">
+    <span class="audio-icon">🎂</span>
+    <span class="audio-label" id="audio-label">MUSIC: ON</span>
+  </button>
+
+
+  <!-- 3D Canvas Viewport -->
+  <div id="webgl-container"></div>
+
+  <!-- HUD Top-Left: Project Moonlight Header -->
+  <header class="hud-top-left" aria-label="Project Status">
+    <div class="hud-line primary">
+      <span class="hud-bracket">[</span>
+      <span class="hud-text">LILIUM ORIENTALIS // PROJECT: MOONLIGHT</span>
+      <span class="hud-bracket">]</span>
+    </div>
+    <div class="hud-line secondary">
+      <span class="hud-dot"></span>
+      <span class="hud-text">TARGET DATE: 03 NOVEMBER</span>
+      <span class="hud-badge">SYS: ONLINE</span>
+    </div>
+  </header>
+
+  <!-- HUD Top-Right: Controls & Coordinates -->
+  <div class="hud-top-right">
+    <div class="hud-tag">SPECIMEN: STARGAZER LILY</div>
+    <div class="hud-coords" id="hud-coords">ROT: X 00.0° Y 00.0°</div>
+  </div>
+
+  <!-- Interactive 3D Wish Tooltip (Anchored in screen space to flowers) -->
+  <div id="flower-tooltip" class="flower-tooltip hidden" aria-live="polite">
+    <div class="tooltip-header">
+      <span class="tooltip-flower-id">FLOWER // 01</span>
+      <span class="tooltip-pulse"></span>
+    </div>
+    <div class="tooltip-quote" id="tooltip-text">
+      "3rd November: The day the moon came to this world."
+    </div>
+    <div class="tooltip-footer">Click again or tap screen to dismiss</div>
+  </div>
+
+  <!-- HUD Bottom-Left: Procedural Progress Tracker -->
+  <footer class="hud-bottom-left" aria-label="Bloom Progress">
+    <div class="progress-meta">
+      <div class="stage-label-wrap">
+        <span class="stage-icon">⚡</span>
+        <span id="stage-status" class="stage-status">STAGE 1: SPROUTING STEM & Foliage</span>
+      </div>
+      <div id="progress-percent" class="progress-percent">0.000%</div>
+    </div>
+    
+    <div class="progress-bar-container">
+      <div id="progress-bar-fill" class="progress-bar-fill">
+        <div class="progress-bar-glow"></div>
+      </div>
+      <div class="progress-bar-markers">
+        <span class="marker" style="left: 25%"></span>
+        <span class="marker" style="left: 55%"></span>
+        <span class="marker" style="left: 85%"></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Central / Bottom Unlock Button (Revealed at 100% Bloom) -->
+  <div id="unlock-container" class="unlock-container hidden">
+    <button id="unlock-btn" class="glass-btn unlock-btn">
+      <span class="btn-halo"></span>
+      <span class="btn-icon">🌙</span>
+      <span class="btn-text">UNLOCK 3RD NOVEMBER MESSAGE</span>
+      <span class="btn-sparkle">✦</span>
+    </button>
+  </div>
+
+  <!-- Birthday Experience Message Panel (Frosted-Glass Celestial Letter Card) -->
+  <aside id="message-panel" class="message-panel hidden" aria-modal="true" role="dialog">
+    <div class="panel-glass-card" id="tilt-glass-card">
+      <!-- Card Gloss Shimmer Glare Overlay -->
+      <div class="card-glare"></div>
+      <div class="card-flower-overlay"></div>
+
+      <!-- Card Header -->
+      <div class="card-header">
+        <div class="card-pills">
+          <span class="pill-dot red"></span>
+          <span class="pill-dot yellow"></span>
+          <span class="pill-dot green"></span>
+          <span class="card-sys-id">MOONLIGHT_MESSAGE_DECRYPTED // 03.11</span>
+        </div>
+        <button id="close-panel-btn" class="card-close-btn" aria-label="Minimize Message">&times;</button>
+      </div>
+
+      <!-- Interactive Music Box Status Bar -->
+      <div class="music-status-bar" id="music-status-bar">
+        <div class="music-meta">
+          <span class="music-note-icon">🎵</span>
+          <span class="music-title">NOW PLAYING: <em>"Happy Birthday to You"</em> (Music Box Edition)</span>
+        </div>
+        <div class="audio-equalizer" id="equalizer-bars">
+          <span class="eq-bar"></span>
+          <span class="eq-bar"></span>
+          <span class="eq-bar"></span>
+          <span class="eq-bar"></span>
+          <span class="eq-bar"></span>
+        </div>
+        <button id="card-audio-toggle" class="card-audio-btn" title="Pause / Resume Music">
+          <span id="card-audio-btn-icon">🔊</span>
+        </button>
+      </div>
+
+      <!-- Version Toggle Tabs -->
+      <div class="card-tabs">
+        <button id="tab-polished" class="tab-btn active">
+          <span class="tab-icon">✨</span> Polished Compilation
+        </button>
+        <button id="tab-raw" class="tab-btn">
+          <span class="tab-icon">💌</span> Raw Heartfelt Note
+        </button>
+      </div>
+
+      <!-- Scrollable Message Body with Animated Stream -->
+      <div class="card-scroll-area">
+        <div class="letter-heading">
+          <div class="celestial-badge">
+            <span class="badge-sparkle">✦</span>
+            <span>A TRIBUTE TO THE MOON</span>
+            <span class="badge-sparkle">✦</span>
+          </div>
+          <h1 class="main-title">Happy Birthday, <span class="glow-name">Nusrat Jahan Sadia</span> <span class="moon-emoji">🌙🌷</span></h1>
+          <div class="sub-title">03 . 11 — A SPECIAL COMPILATION</div>
+          <div class="letter-divider"></div>
+        </div>
+
+        <!-- Polished Version Content with Animated Stream -->
+        <article id="content-polished" class="letter-body visible">
+          <p class="typewriter-p" data-p="1">
+            <span class="drop-cap">H</span>appy Birthday to the most beautiful woman I have ever seen—well, maybe not seen in person yet, but definitely in my imagination.
+          </p>
+          <p class="typewriter-p" data-p="2">
+            <span class="glow-date">3rd November</span> is such a special day, because on this day, a moon named <span class="glow-name">Nusrat Jahan Sadia</span> came into this world.
+          </p>
+          <p class="typewriter-p" data-p="3">
+            I pray that Allah fulfills all of your dreams and takes away all your worries and sadness. Always stay happy and keep moving forward—<span class="glow-dua">In Sha Allah</span>, you are going to be a champion in life.
+          </p>
+          <p class="typewriter-p" data-p="4">
+            And hey, please don't call me <em>'vondo'</em>! 😅 I have never wished anyone like this before—you are the only one I've ever made something like this for. <span class="soft-aside">(If this ever feels annoying to you, just let me know and I promise I won't disturb you anymore.)</span>
+          </p>
+          <p class="typewriter-p" data-p="5">
+            <span class="glow-dua">In Sha Allah</span>, the next chapter and path of your life will be much smoother and brighter.
+          </p>
+          <div class="typewriter-p p-ps" data-p="6">
+            <div class="ps-header">
+              <span class="ps-badge">
+                <span class="ps-icon">🎓</span> P.S. SPECIAL REQUEST
+              </span>
+              <span class="ps-star">✨</span>
+            </div>
+            <div class="ps-text">
+              Please give me a short tour of your campus someday! 🙂
+            </div>
+          </div>
+        </article>
+
+        <!-- Raw Heartfelt Alternate Version Content -->
+        <article id="content-raw" class="letter-body hidden">
+          <div class="raw-note-wrapper">
+            <div class="raw-stamp">DEAR SADIA,</div>
+            <p class="raw-p">
+              I wanted to build something as rare and radiant as you are. Just like this Stargazer Lily blooming in procedural code, your presence brings brightness and calm to everything around you.
+            </p>
+            <p class="raw-p">
+              <span class="glow-date">November 3rd</span> is uniquely yours—a day when grace, kindness, and beauty entered this world. May every prayer you hold quietly in your heart be answered beyond your highest expectations.
+            </p>
+            <p class="raw-p">
+              Always protect your smile, keep believing in your abilities, and never doubt the extraordinary future waiting for you. (And remember—no calling me 'vondo' anymore! 🌸)
+            </p>
+            <div class="p-ps">
+              <div class="ps-header">
+                <span class="ps-badge">
+                  <span class="ps-icon">🎓</span> P.S. SPECIAL REQUEST
+                </span>
+                <span class="ps-star">✨</span>
+              </div>
+              <div class="ps-text">
+                Please give me a short tour of your campus someday! 🙂
+              </div>
+            </div>
+            <p class="raw-p raw-sign">
+              Always wishing the absolute best for you,<br>
+              <em>— With all my respect, warmth &amp; du'as</em>
+            </p>
+          </div>
+        </article>
+      </div>
+
+      <!-- Interactive Footer Actions -->
+      <div class="card-footer">
+        <button id="tour-btn" class="glass-action-btn primary-action">
+          <span class="action-icon">🎓</span>
+          <span id="tour-btn-text">Accept Campus Tour Request 🙂</span>
+        </button>
+        <button id="replay-btn" class="glass-action-btn secondary-action" title="Watch the wireframe & bloom sequence again">
+          <span class="action-icon">🔄</span>
+          <span>Replay Bloom Animation</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Particle Confetti Canvas Overlay (for Celebrations) -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Three.js (Local bundle with CDN fallback) -->
+  <script src="three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+    }
+  </script>
+  
+  <!-- Main Application Script -->
+  <script src="app.js?v=2.5"></script>
+</body>
+</html>
