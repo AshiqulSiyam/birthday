@@ -35,8 +35,8 @@
 
   const STATE = {
     progress: initialProgress, // 0.000 to 1.000
-    isPlaying: true,
-    isComplete: false,
+    isPlaying: false, // Flower only starts blooming when user enters via "ENTER WITH BIRTHDAY MUSIC"
+    isComplete: initialProgress >= 1.0,
     isPanelOpen: false,
     currentStage: 1,
     audioEnabled: true,
@@ -279,6 +279,11 @@
     const unlockOverlay = document.getElementById('audio-unlock-overlay');
     if (unlockOverlay) unlockOverlay.classList.add('dismissed');
 
+    if (!STATE.isComplete) {
+      STATE.isPlaying = true;
+      if (clock) clock.getDelta();
+    }
+
     if (audioCtx.state === 'suspended') {
       audioCtx.resume().then(() => {
         playHappyBirthdayMelody();
@@ -324,15 +329,11 @@
     initAudio();
     if (audioCtx) {
       if (audioCtx.state === 'running') {
-        const unlockOverlay = document.getElementById('audio-unlock-overlay');
-        if (unlockOverlay) unlockOverlay.classList.add('dismissed');
         if (!STATE.isBirthdaySongPlaying) {
           playHappyBirthdayMelody();
         }
       } else if (audioCtx.state === 'suspended') {
         audioCtx.resume().then(() => {
-          const unlockOverlay = document.getElementById('audio-unlock-overlay');
-          if (unlockOverlay) unlockOverlay.classList.add('dismissed');
           if (!STATE.isBirthdaySongPlaying && STATE.audioEnabled) {
             playHappyBirthdayMelody();
           }
@@ -942,6 +943,7 @@
     const f3 = createStargazerFlowerHead(2, new THREE.Vector3(1.45, 3.15, 0.45), new THREE.Euler(0.30, 0.55, -0.30));
 
     flowerHeads.push(f1, f2, f3);
+    flowerHeads.forEach(fh => fh.updateBloom(initialProgress));
   }
 
   /**
@@ -1070,6 +1072,7 @@
     const flowerGroup = new THREE.Group();
     flowerGroup.position.copy(attachPos);
     flowerGroup.rotation.copy(orientation);
+    flowerGroup.scale.set(0.001, 0.001, 0.001);
     lilyRootGroup.add(flowerGroup);
 
     // Branching pedicel (flower stem)
@@ -1738,14 +1741,30 @@
     const unlockOverlay = document.getElementById('audio-unlock-overlay');
     const unlockAudioBtn = document.getElementById('audio-unlock-btn');
 
+    const startAudioEvents = ['click', 'touchstart', 'keydown'];
+    const onFirstUserAction = (e) => {
+      dismissAndStartAudio(e);
+    };
+
     function dismissAndStartAudio(e) {
-      if (e) {
+      if (e && e.cancelable) {
         e.preventDefault();
         e.stopPropagation();
       }
+      startAudioEvents.forEach(evt => window.removeEventListener(evt, onFirstUserAction));
+
       if (unlockOverlay) {
         unlockOverlay.classList.add('dismissed');
       }
+
+      // Start flower blooming animation only when user enters with music
+      if (!STATE.isComplete) {
+        STATE.isPlaying = true;
+        if (clock) {
+          clock.getDelta(); // Flush any delta accumulated while waiting on overlay
+        }
+      }
+
       STATE.audioEnabled = true;
       initAudio();
       if (audioCtx) {
@@ -1787,12 +1806,7 @@
       });
     }
 
-    // 3. Global click/gesture fallback to ensure music starts on very first interaction
-    const startAudioEvents = ['click', 'touchstart', 'keydown'];
-    const onFirstUserAction = (e) => {
-      dismissAndStartAudio(e);
-      startAudioEvents.forEach(evt => window.removeEventListener(evt, onFirstUserAction));
-    };
+    // 3. Global click/gesture fallback to ensure music & bloom start on very first interaction
     startAudioEvents.forEach(evt => window.addEventListener(evt, onFirstUserAction, { passive: true, once: true }));
 
     // Unlock 3rd November Message Button
@@ -2001,13 +2015,17 @@
       tiltGlassCard.style.backgroundImage = 'url(' + flowerBgData + ')';
     }
 
-    // Always-on audio initialization
-    ensureAudioPlaying();
+    // Initialize initial static timeline state (0.000% seed/dormant state)
+    updateAnimationTimeline(0);
 
     if (urlParams.has('panel')) {
       const unlockOverlay = document.getElementById('audio-unlock-overlay');
       if (unlockOverlay) {
         unlockOverlay.classList.add('dismissed');
+      }
+      if (!urlParams.has('progress')) {
+        STATE.progress = 1.0;
+        STATE.isComplete = true;
       }
       openMessagePanel();
       if (urlParams.has('scroll')) {
