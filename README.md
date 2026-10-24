@@ -36,8 +36,4 @@
 
 This project is deployed live on **GitHub Pages**:
 
-👉 **[https://ashiqulsiyam.github.io/birthday/](https://ashiqulsiyam.github.io/birthday/)**
 
----
-
-*Dedicated to Nusrat Jahan Sadia — 03 November 🌙*
