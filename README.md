@@ -1,6 +1,6 @@
 # 🌸 Lilium Orientalis // Project: Moonlight
 
-> **An interactive 3D procedural botanical growth experience and birthday tribute for Nusrat Jahan Sadia (03 November).**
+> **An interactive 3D procedural botanical growth experience and birthday tribute **
 
 ---
 
